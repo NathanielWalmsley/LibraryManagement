@@ -43,13 +43,10 @@ class LibraryManager(object):
         
         result_processed = dict()
         for row in result_raw:
-            primary_key = row[0]
-            library_branch_BranchName = row[1]
-            library_branch_BranchAddress = row[2]
             result_processed.update({
-                primary_key: {
-                    'library_branch_BranchName': library_branch_BranchName,
-                    'library_branch_BranchAddress': library_branch_BranchAddress
+                row[0]: {
+                    'library_branch_BranchName': row[1],
+                    'library_branch_BranchAddress': row[2]
                     }
                 })
         return result_processed

@@ -42,3 +42,7 @@ def test_retrieve_list_of_libraries():
         }
     }
     assert result == expected
+
+def test_get_none_if_data_doesnt_exist():
+    catalogue = main.LibraryManager(TEST_PATH)
+    assert catalogue.get_all_libraries() == None
