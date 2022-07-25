@@ -50,3 +50,14 @@ class LibraryManager(object):
                     }
                 })
         return result_processed
+
+    def insert_new_library(self, branch_name, branch_address):
+        '''
+            Create a new library branch to monitor. 
+            Requires:
+                branch_name (string)
+                branch_address (string)
+            Returns:
+                Boolean - True for successful creation, False for unsuccessful
+        '''
+        pass
