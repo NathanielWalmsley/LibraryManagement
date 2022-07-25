@@ -13,21 +13,30 @@ def test_init_establishes_connection():
 
 def test_retrieve_list_of_libraries():
     catalogue = main.LibraryManager(TEST_PATH)
-    result = catalogue.get_list_of_libraries()
+    catalogue.connection.cursor().execute("""
+    INSERT INTO tbl_library_branch
+		(library_branch_BranchName, library_branch_BranchAddress)
+		VALUES
+		('Sharpstown','32 Corner Road, New York, NY 10012'),
+		('Central','491 3rd Street, New York, NY 10014'),
+		('Saline','40 State Street, Saline, MI 48176'),
+		('Ann Arbor','101 South University, Ann Arbor, MI 48104');
+    """)
+    result = catalogue.get_all_libraries()
     expected = {
-        '1': {
+        1: {
             'library_branch_BranchName': 'Sharpstown', 
             'library_branch_BranchAddress': '32 Corner Road, New York, NY 10012'
         },
-        '2': {
+        2: {
             'library_branch_BranchName': 'Central', 
             'library_branch_BranchAddress': '491 3rd Street, New York, NY 10014'
         },
-        '3': {
+        3: {
             'library_branch_BranchName': 'Saline', 
             'library_branch_BranchAddress': '40 State Street, Saline, MI 48176'
         },
-		'4': {
+		4: {
             'library_branch_BranchName': 'Ann Arbor',
             'library_branch_BranchAddress': '101 South University, Ann Arbor, MI 48104'
         }

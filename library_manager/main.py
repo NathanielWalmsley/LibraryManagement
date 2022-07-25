@@ -14,19 +14,19 @@ class LibraryManager(object):
             print(f'Error occured with the following message: {e}')
 
     
-    def get_list_of_libraries(self):
+    def get_all_libraries(self):
         """
             Get a complete list of all the libraries managed by this
-            catalogue and return them as a string
+            catalogue and return them as a dictionary
         """
         query = """
-            SELECT * FROM tbl_library_branch
+            SELECT * FROM tbl_library_branch;
         """
         cursor = self.connection.cursor()
-        result = None
+        result_raw = None
         try:
             cursor.execute(query)
-            result = cursor.fetchall()
+            result_raw = cursor.fetchall()
         except sqlite3.Error as e:
             print(
                 f'An SQL Error for the connection to {self._connection_path} '
@@ -37,5 +37,19 @@ class LibraryManager(object):
             print(
                 f'An unexpected error occurred with code: {unexpectedException}'
             )
-        return result
-
+        
+        if not result_raw:
+            return
+        
+        result_processed = dict()
+        for row in result_raw:
+            primary_key = row[0]
+            library_branch_BranchName = row[1]
+            library_branch_BranchAddress = row[2]
+            result_processed.update({
+                primary_key: {
+                    'library_branch_BranchName': library_branch_BranchName,
+                    'library_branch_BranchAddress': library_branch_BranchAddress
+                    }
+                })
+        return result_processed
