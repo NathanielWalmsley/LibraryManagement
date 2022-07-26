@@ -13,7 +13,32 @@ class LibraryManager(object):
             print(f'Unable to establish connection to SQLite database at {path}')
             print(f'Error occured with the following message: {e}')
 
-    
+    def _execute(self, query, parameters=[]):
+        '''
+            Requires:
+                query (string)
+                parameters (iterable)
+        '''
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(query, parameters)
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+        except sqlite3.Error as e:
+            print(
+                f'An SQL Error for the connection to "{self._connection_path}" '
+                f'occurred for the query:\n'
+                f'{query}\n'
+                f'with parameters: {parameters}\n'
+                f'Error code is: {e}'
+            )
+        except Exception as unexpectedException:
+            print(
+                f'An unexpected error occurred with code: {unexpectedException}'
+            )
+            raise
+
     def get_all_libraries(self):
         """
             Get a complete list of all the libraries managed by this
@@ -22,23 +47,7 @@ class LibraryManager(object):
         query = """
             SELECT * FROM tbl_library_branch;
         """
-        cursor = self.connection.cursor()
-        result_raw = None
-        try:
-            cursor.execute(query)
-            result_raw = cursor.fetchall()
-        except sqlite3.Error as e:
-            print(
-                f'An SQL Error for the connection to {self._connection_path} '
-                f'occurred when retrieving list of libraries.\n'
-                f'Error code is: {e}'
-            )
-        except Exception as unexpectedException:
-            print(
-                f'An unexpected error occurred with code: {unexpectedException}'
-            )
-            raise
-        
+        result_raw = self._execute(query)
         if not result_raw:
             return
         
@@ -70,27 +79,35 @@ class LibraryManager(object):
         result = self._execute(query, parameters=(branch_name, branch_address))
         return result == [] # The result of fetchall() if insert succeeds
 
-    def _execute(self, query, parameters=[]):
-        '''
-            Requires:
-                query (string)
-                parameters (iterable)
-        '''
-        cursor = self.connection.cursor()
-        try:
-            cursor.execute(query, parameters)
-            return cursor.fetchall()
-        except sqlite3.Error as e:
-            print(
-                f'An SQL Error for the connection to "{self._connection_path}" '
-                f'occurred for the query:\n'
-                f'{query}\n'
-                f'with parameters: {parameters}\n'
-                f'Error code is: {e}'
-            )
-        except Exception as unexpectedException:
-            print(
-                f'An unexpected error occurred with code: {unexpectedException}'
-            )
-            raise
+    def get_books_by_title(
+            self, 
+            title=None, 
+            author=None, 
+            publisher=None, 
+            copies=None, 
+            branch=None,
+            borrower=None
+        ):
+        base_query = """
+SELECT 
+    book_Title, book_PublisherName as title, publisher
+FROM
+    tbl_book
+        """
+        parameters = []
+        if any([title, author, publisher, copies, branch, borrower]):
+            base_query.append("WHERE")
         
+        if title:
+            base_query.append("""
+    book_Title = ?
+            """)
+            parameters.append(title)
+
+        if author:
+            base_query.append("""
+    book_BookID = tbl_book_authors.book_authors_BookID 
+    AND 
+    tbl_book_authors.book_authors_AuthorName = ?
+            """)
+            parameters.append(author)
