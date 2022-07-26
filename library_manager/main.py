@@ -67,21 +67,49 @@ class LibraryManager(object):
             VALUES
                 (?, ?);
         """
+        result = self._execute(query, parameters=(branch_name, branch_address))
+        return result == [] # The result of fetchall() if insert succeeds
+        # cursor = self.connection.cursor()
+        # try:
+        #     cursor.execute(query, (branch_name, branch_address))
+        #     return True
+        # except sqlite3.Error as e:
+        #     print(
+        #         f'An SQL Error for the connection to {self._connection_path} '
+        #         f'when inserting a new library branch with parameters: \n'
+        #         f'name: {branch_name};\naddress: {branch_address}\n'
+        #         f'Error code is: {e}'
+        #     )
+        #     return False
+        # except Exception as unexpectedException:
+        #     print(
+        #         f'An unexpected error occurred with code: {unexpectedException}'
+        #     )
+        #     raise
+
+    def _execute(self, query, parameters=[]):
+        '''
+            Requires:
+                query (string)
+                parameters (iterable)
+        '''
         cursor = self.connection.cursor()
         try:
-            cursor.execute(query, (branch_name, branch_address))
-            return True
+            cursor.execute(query, parameters)
+            return cursor.fetchall()
         except sqlite3.Error as e:
+            if parameters:
+                for param in parameters:
+                    query.replace('?', param, 1)
             print(
                 f'An SQL Error for the connection to {self._connection_path} '
-                f'when inserting a new library branch with parameters: \n'
-                f'name: {branch_name};\naddress: {branch_address}\n'
+                f'occurred for the query:\n'
+                f'{query}'
                 f'Error code is: {e}'
             )
-            return False
+            return
         except Exception as unexpectedException:
             print(
                 f'An unexpected error occurred with code: {unexpectedException}'
             )
             raise
-
