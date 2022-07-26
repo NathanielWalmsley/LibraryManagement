@@ -4,16 +4,15 @@ from library_manager import main
 
 
 TEST_PATH = './tests/sqlite.db'
+CATALOGUE = main.LibraryManager(TEST_PATH)
 
 
 def test_init_establishes_connection():
-    catalogue = main.LibraryManager(TEST_PATH)
-    assert catalogue._connection_path == TEST_PATH
+    assert CATALOGUE._connection_path == TEST_PATH
 
 
 def test_retrieve_list_of_libraries():
-    catalogue = main.LibraryManager(TEST_PATH)
-    catalogue.connection.cursor().execute("""
+    CATALOGUE.connection.cursor().execute("""
     INSERT INTO tbl_library_branch
 		(library_branch_BranchName, library_branch_BranchAddress)
 		VALUES
@@ -22,7 +21,7 @@ def test_retrieve_list_of_libraries():
 		('Saline','40 State Street, Saline, MI 48176'),
 		('Ann Arbor','101 South University, Ann Arbor, MI 48104');
     """)
-    result = catalogue.get_all_libraries()
+    result = CATALOGUE.get_all_libraries()
     expected = {
         1: {
             'library_branch_BranchName': 'Sharpstown', 
@@ -42,7 +41,18 @@ def test_retrieve_list_of_libraries():
         }
     }
     assert result == expected
+    # Clean up any records created in this test
+    CATALOGUE.connection.cursor().execute('DELETE FROM tbl_library_branch')
+
 
 def test_get_none_if_data_doesnt_exist():
-    catalogue = main.LibraryManager(TEST_PATH)
-    assert catalogue.get_all_libraries() == None
+    assert CATALOGUE.get_all_libraries() == None
+
+
+def test_insert_new_library_returns_true_when_new_branch_created():
+    assert CATALOGUE.insert_new_library('Sacramento', '123 Fake Street, Springfield')
+    
+
+def test_insert_new_library_returns_false_when_cannot_create_new_branch():
+    # Using bad arguments here to create an error with the parameterisation
+    assert not CATALOGUE.insert_new_library(['Sacramento', '123 Fake Street, Springfield'], 123)

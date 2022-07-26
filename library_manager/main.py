@@ -37,6 +37,7 @@ class LibraryManager(object):
             print(
                 f'An unexpected error occurred with code: {unexpectedException}'
             )
+            raise
         
         if not result_raw:
             return
@@ -60,4 +61,27 @@ class LibraryManager(object):
             Returns:
                 Boolean - True for successful creation, False for unsuccessful
         '''
-        pass
+        query = """
+            INSERT INTO 
+                tbl_library_branch (library_branch_BranchName, library_branch_BranchAddress)
+            VALUES
+                (?, ?);
+        """
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(query, (branch_name, branch_address))
+            return True
+        except sqlite3.Error as e:
+            print(
+                f'An SQL Error for the connection to {self._connection_path} '
+                f'when inserting a new library branch with parameters: \n'
+                f'name: {branch_name};\naddress: {branch_address}\n'
+                f'Error code is: {e}'
+            )
+            return False
+        except Exception as unexpectedException:
+            print(
+                f'An unexpected error occurred with code: {unexpectedException}'
+            )
+            raise
+
