@@ -88,3 +88,20 @@ def test_insert_new_library_returns_true_when_new_branch_created():
 def test_insert_new_library_returns_false_when_cannot_create_new_branch():
     # Using bad arguments here to create an error with the parameterisation
     assert not CATALOGUE.insert_new_library(['Sacramento', '123 Fake Street, Springfield'], 123)
+
+
+def test_get_books_by_title():
+    expected = 'The Name of the Wind'
+    CATALOGUE.connection.cursor().execute('''INSERT INTO tbl_book
+		(book_Title)
+		VALUES 
+		(?);''', [expected])
+    CATALOGUE.connection.cursor().execute('''
+    INSERT INTO tbl_book_authors
+		(book_authors_BookID,book_authors_AuthorName)
+		VALUES
+		('1','Patrick Rothfuss');
+    ''')
+    result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')[0][0]
+    assert result == expected
+    

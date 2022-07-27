@@ -89,37 +89,23 @@ class LibraryManager(object):
             branch=None,
             borrower=None
         ):
-        base_query = """
-SELECT 
-    book_Title, book_PublisherName as title, publisher
-FROM
-    tbl_book
-"""
-        parameters = {
+        query = """SELECT book_Title FROM tbl_book"""
+        conditions = {
             'title': '\n\tbook_Title = ?',
-            'author': '\n\tbook_BookID = tbl_book_authors.book_authors_BookID' +
-            '\nAND' +
-            '\n\ttbl_book_authors.book_authors_AuthorName = ?\n\t',
+            'author': '\n\tbook_BookID = '
+            '(SELECT book_authors_BookID FROM tbl_book_authors WHERE book_authors_AuthorName = ?)',
             'publisher': None,
         }
-        conditions = []
+        parameters = []
         if any([title, author, publisher, copies, branch, borrower]):
-            base_query.append("WHERE")
+            query += "\nWHERE"
         
-        # test code - remove later:
-        base_query.append(parameters['author'])
-        result = self._execute(base_query, [author])
+        if title: 
+            query += conditions['title']
+            parameters.append(title)
         
-    #     if title:
-    #         conditions.append("""
-    # book_Title = ?
-    #         """)
-    #         parameters.append(title)
-
-    #     if author:
-    #         conditions.append("""
-    # book_BookID = tbl_book_authors.book_authors_BookID 
-    # AND 
-    # tbl_book_authors.book_authors_AuthorName = ?
-    #         """)
-    #         parameters.append(author)
+        if author:
+            query += conditions['author']
+            parameters.append(author)
+        
+        return self._execute(query, parameters)
