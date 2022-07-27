@@ -5,38 +5,8 @@ from library_manager import main
 
 TEST_PATH = ':memory:'
 CATALOGUE = main.LibraryManager(TEST_PATH)
-CATALOGUE.connection.cursor().execute(
-    '''
-    CREATE TABLE tbl_library_branch (
-        library_branch_BranchID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		library_branch_BranchName VARCHAR(100) NOT NULL,
-		library_branch_BranchAddress VARCHAR(200) NOT NULL
-	);
-    '''
-)
-
-CATALOGUE.connection.cursor().execute(
-    '''
-    CREATE TABLE tbl_book (
-		book_BookID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		book_Title VARCHAR(100) NOT NULL
-	);
-    '''
-)
-
-CATALOGUE.connection.cursor().execute(
-    '''
-    CREATE TABLE tbl_book_authors (
-		book_authors_AuthorID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		book_authors_AuthorName VARCHAR(50) NOT NULL,
-		book_authors_BookID INTEGER NOT NULL,
-        FOREIGN KEY (book_authors_BookID) 
-            REFERENCES tbl_book(book_BookID) ON UPDATE CASCADE ON DELETE CASCADE
-	);
-    '''
-)
-
-
+with open('./tests/test_schema.sql', 'r') as fp:
+    CATALOGUE.connection.cursor().executescript(fp.read())
 
 
 def test_init_establishes_connection():
@@ -92,11 +62,10 @@ def test_insert_new_library_returns_false_when_cannot_create_new_branch():
 
 def test_get_books_by_title_filter_by_author():
     expected = 'The Name of the Wind'
-    unexpected = 'The Lorax'
     CATALOGUE.connection.cursor().execute('''INSERT INTO tbl_book
-		(book_Title)
+		(book_Title, book_PublisherName)
 		VALUES 
-		(?), (?);''', [expected, unexpected])
+		(?, 'DAW Books'), ('The Lorax', 'Harper and Row');''', [expected])
     CATALOGUE.connection.cursor().execute('''
     INSERT INTO tbl_book_authors
 		(book_authors_BookID,book_authors_AuthorName)
