@@ -1,3 +1,4 @@
+from email.mime import base
 import sqlite3
 
 
@@ -101,10 +102,13 @@ FROM
             '\n\ttbl_book_authors.book_authors_AuthorName = ?\n\t',
             'publisher': None,
         }
-        parameters = []
         conditions = []
         if any([title, author, publisher, copies, branch, borrower]):
             base_query.append("WHERE")
+        
+        # test code - remove later:
+        base_query.append(parameters['author'])
+        result = self._execute(base_query, [author])
         
     #     if title:
     #         conditions.append("""

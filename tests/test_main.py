@@ -15,6 +15,29 @@ CATALOGUE.connection.cursor().execute(
     '''
 )
 
+CATALOGUE.connection.cursor().execute(
+    '''
+    CREATE TABLE tbl_book (
+		book_BookID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		book_Title VARCHAR(100) NOT NULL
+	);
+    '''
+)
+
+CATALOGUE.connection.cursor().execute(
+    '''
+    CREATE TABLE tbl_book_authors (
+		book_authors_AuthorID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		book_authors_AuthorName VARCHAR(50) NOT NULL,
+		book_authors_BookID INTEGER NOT NULL,
+        FOREIGN KEY (book_authors_BookID) 
+            REFERENCES tbl_book(book_BookID) ON UPDATE CASCADE ON DELETE CASCADE
+	);
+    '''
+)
+
+
+
 
 def test_init_establishes_connection():
     assert CATALOGUE._connection_path == TEST_PATH
