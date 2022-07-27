@@ -14,15 +14,6 @@ def test_init_establishes_connection():
 
 
 def test_retrieve_list_of_libraries():
-    CATALOGUE.connection.cursor().execute("""
-    INSERT INTO tbl_library_branch
-		(library_branch_BranchName, library_branch_BranchAddress)
-		VALUES
-		('Sharpstown','32 Corner Road, New York, NY 10012'),
-		('Central','491 3rd Street, New York, NY 10014'),
-		('Saline','40 State Street, Saline, MI 48176'),
-		('Ann Arbor','101 South University, Ann Arbor, MI 48104');
-    """)
     result = CATALOGUE.get_all_libraries()
     expected = {
         1: {
@@ -43,21 +34,29 @@ def test_retrieve_list_of_libraries():
         }
     }
     assert result == expected
-    # Clean up any records created in this test
-    CATALOGUE.connection.cursor().execute('DELETE FROM tbl_library_branch')
-
-
-def test_get_none_if_data_doesnt_exist():
-    assert CATALOGUE.get_all_libraries() == None
 
 
 def test_insert_new_library_returns_true_when_new_branch_created():
     assert CATALOGUE.insert_new_library('Sacramento', '123 Fake Street, Springfield')
-    
+
+
+def test_insert_new_library_does_not_overwrite_existing_entries():
+    CATALOGUE.insert_new_library('Sacramento', '123 Fake Street, Springfield')
+    CATALOGUE.insert_new_library('Sacramento', 'ABC Fraudulent Blvd, Ohio')
+    result = CATALOGUE.get_all_libraries()
+    expected = {
+        'library_branch_BranchName': 'Sacramento',
+        'library_branch_BranchAddress': '123 Fake Street, Springfield'
+    }
+    assert result[5] == expected
+    assert 6 not in result
+
 
 def test_insert_new_library_returns_false_when_cannot_create_new_branch():
     # Using bad arguments here to create an error with the parameterisation
-    assert not CATALOGUE.insert_new_library(['Sacramento', '123 Fake Street, Springfield'], 123)
+    assert not CATALOGUE.insert_new_library(
+        ['Sacramento', '123 Fake Street, Springfield'], 123
+    )
 
 
 def test_get_books_by_title_filter_by_author():
