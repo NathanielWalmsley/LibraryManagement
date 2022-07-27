@@ -49,7 +49,7 @@ def test_insert_new_library_does_not_overwrite_existing_entries():
         'library_branch_BranchAddress': '123 Fake Street, Springfield'
     }
     assert result[5] == expected
-    assert 6 not in result
+    assert 6 not in result # Ensure we didn't add a new entry for the second Sacramento
 
 
 def test_insert_new_library_returns_false_when_cannot_create_new_branch():
@@ -60,18 +60,6 @@ def test_insert_new_library_returns_false_when_cannot_create_new_branch():
 
 
 def test_get_books_by_title_filter_by_author():
-    expected = 'The Name of the Wind'
-    CATALOGUE.connection.cursor().execute('''INSERT INTO tbl_book
-		(book_Title, book_PublisherName)
-		VALUES 
-		(?, 'DAW Books'), ('The Lorax', 'Harper and Row');''', [expected])
-    CATALOGUE.connection.cursor().execute('''
-    INSERT INTO tbl_book_authors
-		(book_authors_BookID,book_authors_AuthorName)
-		VALUES
-		('1','Patrick Rothfuss'),
-        ('2', 'Dr. Seuss');
-    ''')
     result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')
-    assert result == [(expected,)]
+    assert result == [('The Name of the Wind',)]
     

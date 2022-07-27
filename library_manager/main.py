@@ -80,32 +80,24 @@ class LibraryManager(object):
         result = self._execute(query, parameters=(branch_name, branch_address))
         return result == [] # The result of fetchall() if insert succeeds
 
-    def get_books_by_title(
-            self, 
-            title=None, 
-            author=None, 
-            publisher=None, 
-            copies=None, 
-            branch=None,
-            borrower=None
-        ):
+    def get_books_by_title(self, **kwargs):
         query = """SELECT book_Title FROM tbl_book"""
         conditions = {
             'title': '\n\tbook_Title = ?',
-            'author': '\n\tbook_BookID = '
-            '(SELECT book_authors_BookID FROM tbl_book_authors WHERE book_authors_AuthorName = ?)',
+            'author': '\n\tbook_BookID = ' +
+                '(SELECT book_authors_BookID ' +
+                    'FROM tbl_book_authors ' +
+                    'WHERE book_authors_AuthorName = ?)',
             'publisher': None,
         }
         parameters = []
-        if any([title, author, publisher, copies, branch, borrower]):
-            query += "\nWHERE"
-        
-        if title: 
-            query += conditions['title']
-            parameters.append(title)
-        
-        if author:
-            query += conditions['author']
-            parameters.append(author)
-        
+
+        if len(kwargs) > 0:
+            query += '\nWHERE'
+
+        for condition, value in kwargs.items():
+            if condition in conditions:
+                query += conditions[condition]
+                parameters.append(value)
+
         return self._execute(query, parameters)
