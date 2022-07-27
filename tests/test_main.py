@@ -90,18 +90,20 @@ def test_insert_new_library_returns_false_when_cannot_create_new_branch():
     assert not CATALOGUE.insert_new_library(['Sacramento', '123 Fake Street, Springfield'], 123)
 
 
-def test_get_books_by_title():
+def test_get_books_by_title_filter_by_author():
     expected = 'The Name of the Wind'
+    unexpected = 'The Lorax'
     CATALOGUE.connection.cursor().execute('''INSERT INTO tbl_book
 		(book_Title)
 		VALUES 
-		(?);''', [expected])
+		(?), (?);''', [expected, unexpected])
     CATALOGUE.connection.cursor().execute('''
     INSERT INTO tbl_book_authors
 		(book_authors_BookID,book_authors_AuthorName)
 		VALUES
-		('1','Patrick Rothfuss');
+		('1','Patrick Rothfuss'),
+        ('2', 'Dr. Seuss');
     ''')
-    result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')[0][0]
-    assert result == expected
+    result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')
+    assert result == [(expected,)]
     
