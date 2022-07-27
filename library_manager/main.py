@@ -93,21 +93,29 @@ SELECT
     book_Title, book_PublisherName as title, publisher
 FROM
     tbl_book
-        """
+"""
+        parameters = {
+            'title': '\n\tbook_Title = ?',
+            'author': '\n\tbook_BookID = tbl_book_authors.book_authors_BookID' +
+            '\nAND' +
+            '\n\ttbl_book_authors.book_authors_AuthorName = ?\n\t',
+            'publisher': None,
+        }
         parameters = []
+        conditions = []
         if any([title, author, publisher, copies, branch, borrower]):
             base_query.append("WHERE")
         
-        if title:
-            base_query.append("""
-    book_Title = ?
-            """)
-            parameters.append(title)
+    #     if title:
+    #         conditions.append("""
+    # book_Title = ?
+    #         """)
+    #         parameters.append(title)
 
-        if author:
-            base_query.append("""
-    book_BookID = tbl_book_authors.book_authors_BookID 
-    AND 
-    tbl_book_authors.book_authors_AuthorName = ?
-            """)
-            parameters.append(author)
+    #     if author:
+    #         conditions.append("""
+    # book_BookID = tbl_book_authors.book_authors_BookID 
+    # AND 
+    # tbl_book_authors.book_authors_AuthorName = ?
+    #         """)
+    #         parameters.append(author)

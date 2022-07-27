@@ -3,8 +3,17 @@ import sqlite3
 from library_manager import main
 
 
-TEST_PATH = './tests/sqlite.db'
+TEST_PATH = ':memory:'
 CATALOGUE = main.LibraryManager(TEST_PATH)
+CATALOGUE.connection.cursor().execute(
+    '''
+    CREATE TABLE tbl_library_branch (
+        library_branch_BranchID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		library_branch_BranchName VARCHAR(100) NOT NULL,
+		library_branch_BranchAddress VARCHAR(200) NOT NULL
+	);
+    '''
+)
 
 
 def test_init_establishes_connection():
