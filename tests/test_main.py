@@ -61,5 +61,10 @@ def test_insert_new_library_returns_false_when_cannot_create_new_branch():
 
 def test_get_books_by_title_filter_by_author():
     result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')
+    print(result)
     assert result == [('The Name of the Wind',)]
+
+
+def test_get_books_by_title_filter_by_publisher():
+    result = CATALOGUE.get_books_by_title(publisher='Scholastic')
     
