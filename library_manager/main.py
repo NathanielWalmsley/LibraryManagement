@@ -84,11 +84,11 @@ class LibraryManager(object):
         query = """SELECT book_Title FROM tbl_book"""
         conditions = {
             'title': '\n\tbook_Title = ?',
-            'author': '\n\tbook_BookID = ' +
+            'author': '\n\tbook_BookID IN ' +
                 '(SELECT book_authors_BookID ' +
                     'FROM tbl_book_authors ' +
                     'WHERE book_authors_AuthorName = ?)',
-            'publisher': None,
+            'publisher': '\n\tbook_PublisherName = ?',
         }
         parameters = []
 

@@ -123,7 +123,7 @@ INSERT INTO tbl_book
     ('Dune', 'Chilton Books'),
     ('The Hobbit', 'George Allen & Unwin'),
     ('Eragon', 'Alfred A. Knopf'),
-    ('A Wise Mans Fear', 'DAW Books'),
+    ('The Wise Mans Fear', 'DAW Books'),
     ('Harry Potter and the Philosophers Stone', 'Bloomsbury'),
     ('Hard Boiled Wonderland and The End of the World', 'Shinchosa'),
     ('The Giving Tree', 'Harper and Row'),

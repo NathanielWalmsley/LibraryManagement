@@ -61,10 +61,16 @@ def test_insert_new_library_returns_false_when_cannot_create_new_branch():
 
 def test_get_books_by_title_filter_by_author():
     result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')
-    print(result)
-    assert result == [('The Name of the Wind',)]
+    assert result == [('The Name of the Wind',), ('The Wise Mans Fear',)]
 
 
 def test_get_books_by_title_filter_by_publisher():
     result = CATALOGUE.get_books_by_title(publisher='Scholastic')
+    assert result == [('Holes',)]
+    result = CATALOGUE.get_books_by_title(publisher='Bloomsbury')
+    assert result == [
+        ('Harry Potter and the Philosophers Stone',), 
+        ('Harry Potter and the Chamber of Secrets',), 
+        ('Harry Potter and the Prisoner of Azkaban',)
+    ]
     
