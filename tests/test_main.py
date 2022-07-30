@@ -73,4 +73,16 @@ def test_get_books_by_title_filter_by_publisher():
         ('Harry Potter and the Chamber of Secrets',), 
         ('Harry Potter and the Prisoner of Azkaban',)
     ]
+
+def test_get_publisher_information_by_address():
+    result = CATALOGUE.get_publisher_information(
+        address='375 Hudson Street, New York, NY 10014'
+    )
+    assert result == [
+        ('DAW Books', '375 Hudson Street, New York, NY 10014', '212-366-2000'),
+        ('Viking', '375 Hudson Street, New York, NY 10014', '212-366-2000'),
+        ('Signet Books', '375 Hudson Street, New York, NY 10014', '212-366-2000'),
+        ('Chalto & Windus','375 Hudson Street, New York, NY 10014', '212-366-2000'),
+        ('Bantam', '375 Hudson Street, New York, NY 10014', '212-366-2000')
+    ]
     
