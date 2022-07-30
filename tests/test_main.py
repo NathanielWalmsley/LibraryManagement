@@ -86,3 +86,14 @@ def test_get_publisher_information_by_address():
         ('Bantam', '375 Hudson Street, New York, NY 10014', '212-366-2000')
     ]
     
+def test_get_books_taken_out_by_borrower():
+    print(CATALOGUE._execute(
+        """SELECT book_Title FROM tbl_book
+        WHERE book_BookID IN (
+            SELECT book_loans_BookID FROM tbl_book_loans
+                WHERE book_loans_CardNo IN (
+                    SELECT borrower_CardNo FROM tbl_borrower WHERE borrower_CardNo = 1
+                )
+            );
+        """
+    ))

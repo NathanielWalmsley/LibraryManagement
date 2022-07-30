@@ -114,3 +114,12 @@ class LibraryManager(object):
         }
         return self._execute_query_with_conditions(query, conditions, kwargs)
         
+    def get_borrower_information(self, **kwargs):
+        query = """SELECT * FROM tbl_borrower"""
+        conditions = {
+            'name': '\n\tborrower_BorrowerName = ?',
+            'address': '\n\tborrower_BorrowerAddress = ?',
+            'phone': '\n\tborrower_BorrowerPhone = ?',
+            'book': '\n\t'
+        }
+        return self._execute_query_with_conditions(query, conditions, kwargs)
