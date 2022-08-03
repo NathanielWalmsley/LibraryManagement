@@ -138,10 +138,20 @@ def test_insert_book_or_update_stock_add_new_inventory():
         25
     )
     # Why is the Book ID 22? There's no entry 21
-    updated_stock_query = """
+    new_stock_query = """
         SELECT book_copies_No_Of_Copies 
         FROM tbl_book_copies 
         WHERE book_copies_BranchID = 4 AND book_copies_BookID = 22;
     """
-    result = CATALOGUE._execute(updated_stock_query)
+    result = CATALOGUE._execute(new_stock_query)
     assert result == [(25,)]
+
+    new_author_query = """
+        SELECT * FROM tbl_book_authors 
+        WHERE 
+            book_authors_BookID = 22
+            AND 
+            book_authors_AuthorName = "Andrea Lawlor";
+    """
+    result = CATALOGUE._execute(new_author_query)
+    assert result == [(22, 'Andrea Lawlor', 22)]
