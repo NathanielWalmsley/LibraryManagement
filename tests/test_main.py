@@ -128,3 +128,20 @@ def test_insert_book_or_update_stock_updates_stock_only_for_existing_book():
     """
     result = CATALOGUE._execute(updated_stock_query)
     assert result == [(9,)]
+
+def test_insert_book_or_update_stock_add_new_inventory():
+    result = CATALOGUE.insert_book_or_update_stock(
+        'Paul Takes the Form of a Mortal Girl', 
+        'Rescue Press', 
+        'Andrea Lawlor', 
+        'Ann Arbor', 
+        25
+    )
+    # Why is the Book ID 22? There's no entry 21
+    updated_stock_query = """
+        SELECT book_copies_No_Of_Copies 
+        FROM tbl_book_copies 
+        WHERE book_copies_BranchID = 4 AND book_copies_BookID = 22;
+    """
+    result = CATALOGUE._execute(updated_stock_query)
+    assert result == [(25,)]

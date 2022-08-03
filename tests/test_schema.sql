@@ -35,7 +35,8 @@ CREATE TABLE tbl_book_authors (
     book_authors_BookID INTEGER NOT NULL,
     FOREIGN KEY (book_authors_BookID) 
         REFERENCES tbl_book(book_BookID) 
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE (book_authors_AuthorName, book_authors_BookID)
 );
 
 CREATE TABLE tbl_book_copies (

@@ -145,7 +145,8 @@ class LibraryManager(object):
             information except for stock availability - we will only 
             add new books with unique title-author combinations.
         '''
-        # Create the entry in tbl_book
+        # Create the entry in tbl_book - do nothing if the book
+        # already exists
         insert_book = """
             INSERT INTO tbl_book(book_Title, book_PublisherName)
             VALUES (?, ?)
