@@ -102,6 +102,12 @@ class LibraryManager(object):
                     'FROM tbl_book_authors ' +
                     'WHERE book_authors_AuthorName = ?)',
             'publisher': '\n\tbook_PublisherName = ?',
+            'borrower_id': '\n\tbook_BookID IN ' +
+                '(SELECT book_loans_BookID FROM tbl_book_loans ' +
+                    'WHERE book_loans_CardNo IN (' +
+                        'SELECT borrower_CardNo ' +
+                            'FROM tbl_borrower ' +
+                            'WHERE borrower_CardNo = ?))',
         }
         return self._execute_query_with_conditions(query, conditions, kwargs)
 
