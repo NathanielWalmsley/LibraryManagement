@@ -101,9 +101,30 @@ def test_get_publisher_information_by_address():
         ('Bantam', '375 Hudson Street, New York, NY 10014', '212-366-2000')
     ]
 
+
 def test_get_borrower_in_possession_of_book():
     result = CATALOGUE.get_borrower_information(book='Dune')
     assert result == [
         (1, 'Joe Smith', '1321 4th Street, New York, NY 10014','212-312-1234'),
         (3, 'Tom Li','981 Main Street, Ann Arbor, MI 48104','734-902-7455')
     ]
+
+
+# ------------------------------- INSERT/UPDATE --------------------------------------- #
+
+
+def test_insert_new_book():
+    result = CATALOGUE.insert_book_or_update_stock(
+        'The Name of the Wind', 
+        'DAW Books', 
+        'Patrick Rothfuss', 
+        'Sharpstown', 
+        4
+    )
+    updated_stock_query = """
+        SELECT book_copies_No_Of_Copies 
+        FROM tbl_book_copies 
+        WHERE book_copies_BranchID = 1;
+    """
+    result = CATALOGUE._execute(updated_stock_query)
+    assert result == [(5)]

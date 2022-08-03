@@ -62,24 +62,6 @@ class LibraryManager(object):
                 })
         return result_processed
 
-    def insert_new_library(self, branch_name, branch_address):
-        '''
-            Create a new library branch to monitor. 
-            Requires:
-                branch_name (string)
-                branch_address (string)
-            Returns:
-                Boolean - True for successful creation, False for unsuccessful
-        '''
-        query = """
-            INSERT INTO 
-                tbl_library_branch (library_branch_BranchName, library_branch_BranchAddress)
-            VALUES
-                (?, ?);
-        """
-        result = self._execute(query, parameters=(branch_name, branch_address))
-        return result == [] # The result of fetchall() if insert succeeds
-
     def _execute_query_with_conditions(self, table, conditions, kwargs):
         query = f'SELECT * FROM {table}'
         parameters = []
@@ -128,3 +110,58 @@ class LibraryManager(object):
                         '(SELECT book_BookID FROM tbl_book WHERE book_Title = ?))'
         }
         return self._execute_query_with_conditions('tbl_Borrower', conditions, kwargs)
+
+# ---------------------------------INSERT/UPDATE QUERIES--------------------------------#
+
+    def insert_new_library(self, branch_name, branch_address):
+        '''
+            Create a new library branch to monitor. 
+            Requires:
+                branch_name (string)
+                branch_address (string)
+            Returns:
+                Boolean - True for successful creation, False for unsuccessful
+        '''
+        query = """
+            INSERT INTO 
+                tbl_library_branch (library_branch_BranchName, library_branch_BranchAddress)
+            VALUES
+                (?, ?);
+        """
+        result = self._execute(query, parameters=(branch_name, branch_address))
+        return result == [] # The result of fetchall() if insert succeeds
+
+    def insert_book_or_update_stock(
+                self, title, publisher, author, branch, stock
+        ):
+        '''
+            To create a new book, we need to know: 
+            - its title,
+            - who wrote it
+            - who published it
+            - where the stock is kept
+            - how many copies we have
+            This method deliberately avoids the case of updating book
+            information except for stock availability - we will only 
+            add new books with unique title-author combinations.
+        '''
+        insert_book = """
+            INSERT INTO tbl_book(book_Title, book_PublisherName)
+            VALUES (?, ?)
+            ON CONFLICT (book_Title, book_PublisherName) DO NOTHING;
+        """ # FIXME:  ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint
+        cursor = self.connection.cursor()
+        cursor.execute(insert_book, [title, publisher])
+        book_id = cursor.lastrowid
+        cursor.close()
+#        book_id = self._execute(insert_book, [title, publisher])[0]
+        get_branch_id = """
+            SELECT library_branch_BranchID FROM tbl_library_branch WHERE library_branch_BranchName = ?;
+        """
+        branch_id = self._execute(get_branch_id, [branch])[0]
+        update_stock = """
+            UPSERT INTO tbl_book_copies(book_copies_BookID, book_copies_BranchID, book_copies_No_Of_Copies)
+            VALUES (?, ?, ?)
+            OUTPUT tbl_book_copies.cook_copies_No_Of_Copies;
+        """
+        no_copies = self._execute(update_stock, [book_id, branch_id, stock])
