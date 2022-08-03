@@ -150,10 +150,11 @@ class LibraryManager(object):
             VALUES (?, ?)
             ON CONFLICT (book_Title, book_PublisherName) DO NOTHING;
         """
-        cursor = self.connection.cursor()
-        cursor.execute(insert_book, [title, publisher])
-        book_id = cursor.lastrowid
-        cursor.close()
+        self._execute(insert_book, [title, publisher])
+        get_book_id = """
+            SELECT book_BookID FROM tbl_book WHERE book_Title = ? AND book_PublisherName = ?
+        """
+        book_id = self._execute(get_book_id, [title, publisher])[0][0]
         get_branch_id = """
             SELECT library_branch_BranchID FROM tbl_library_branch WHERE library_branch_BranchName = ?;
         """
