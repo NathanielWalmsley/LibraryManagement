@@ -113,7 +113,7 @@ def test_get_borrower_in_possession_of_book():
 # ------------------------------- INSERT/UPDATE --------------------------------------- #
 
 
-def test_insert_new_book():
+def test_insert_book_or_update_stock_updates_stock_only_for_existing_book():
     result = CATALOGUE.insert_book_or_update_stock(
         'The Name of the Wind', 
         'DAW Books', 
@@ -128,13 +128,3 @@ def test_insert_new_book():
     """
     result = CATALOGUE._execute(updated_stock_query)
     assert result == [(9,)]
-
-    # Check that no other values were updated
-    unmodified_stock_query = """
-        SELECT book_copies_No_Of_Copies 
-        FROM tbl_book_copies 
-        WHERE book_copies_BranchID = 1 AND book_copies_BookID = 2;
-    """
-    result = CATALOGUE._execute(unmodified_stock_query)
-    assert result == [(5,)]
-

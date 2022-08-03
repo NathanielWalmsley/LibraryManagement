@@ -145,6 +145,7 @@ class LibraryManager(object):
             information except for stock availability - we will only 
             add new books with unique title-author combinations.
         '''
+        # Create the entry in tbl_book
         insert_book = """
             INSERT INTO tbl_book(book_Title, book_PublisherName)
             VALUES (?, ?)
@@ -155,6 +156,8 @@ class LibraryManager(object):
             SELECT book_BookID FROM tbl_book WHERE book_Title = ? AND book_PublisherName = ?
         """
         book_id = self._execute(get_book_id, [title, publisher])[0][0]
+
+        # Add or update the stock at the branch
         get_branch_id = """
             SELECT library_branch_BranchID FROM tbl_library_branch WHERE library_branch_BranchName = ?;
         """
@@ -166,3 +169,13 @@ class LibraryManager(object):
             DO UPDATE SET book_copies_No_Of_Copies = book_copies_No_Of_Copies + ?;
         """
         self._execute(update_stock, [book_id, branch_id, stock, stock])
+
+        # Add the book's author - do nothing if the author already
+        # already exists for that book
+        add_author = """
+            INSERT INTO tbl_book_authors (book_authors_BookID, book_authors_AuthorName)
+            VALUES (?, ?)
+            ON CONFLICT (book_authors_BookID, book_authors_AuthorName)
+            DO NOTHING;
+        """
+        self._execute(add_author, [book_id, author])
