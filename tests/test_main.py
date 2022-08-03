@@ -61,28 +61,31 @@ def test_insert_new_library_returns_false_when_cannot_create_new_branch():
 
 def test_get_books_by_title_filter_by_author():
     result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')
-    assert result == [('The Name of the Wind',), ('The Wise Mans Fear',)]
+    assert result == [
+        (1, 'The Name of the Wind', 'DAW Books'), 
+        (7, 'The Wise Mans Fear', 'DAW Books')
+    ]
 
 
 def test_get_books_by_title_filter_by_publisher():
     result = CATALOGUE.get_books_by_title(publisher='Scholastic')
-    assert result == [('Holes',)]
+    assert result == [(15, 'Holes', 'Scholastic')]
     result = CATALOGUE.get_books_by_title(publisher='Bloomsbury')
     assert result == [
-        ('Harry Potter and the Philosophers Stone',), 
-        ('Harry Potter and the Chamber of Secrets',), 
-        ('Harry Potter and the Prisoner of Azkaban',)
+        (8, 'Harry Potter and the Philosophers Stone', 'Bloomsbury'), 
+        (16, 'Harry Potter and the Chamber of Secrets', 'Bloomsbury'), 
+        (17, 'Harry Potter and the Prisoner of Azkaban', 'Bloomsbury')
     ]
 
 
 def test_get_books_taken_out_by_borrower():
     result = CATALOGUE.get_books_by_title(borrower_id=1)
     assert result == [
-        ('The Name of the Wind',), 
-        ('It',), 
-        ('The Green Mile',), 
-        ('Dune',), 
-        ('A Game of Thrones',)
+        (1, 'The Name of the Wind', 'DAW Books'), 
+        (2, 'It', 'Viking'), 
+        (3, 'The Green Mile', 'Signet Books'), 
+        (4, 'Dune', 'Chilton Books'), 
+        (19, 'A Game of Thrones', 'Bantam')
     ]
 
 
@@ -96,4 +99,11 @@ def test_get_publisher_information_by_address():
         ('Signet Books', '375 Hudson Street, New York, NY 10014', '212-366-2000'),
         ('Chalto & Windus','375 Hudson Street, New York, NY 10014', '212-366-2000'),
         ('Bantam', '375 Hudson Street, New York, NY 10014', '212-366-2000')
+    ]
+
+def test_get_borrower_in_possession_of_book():
+    result = CATALOGUE.get_borrower_information(book='Dune')
+    assert result == [
+        (1, 'Joe Smith', '1321 4th Street, New York, NY 10014','212-312-1234'),
+        (3, 'Tom Li','981 Main Street, Ann Arbor, MI 48104','734-902-7455')
     ]

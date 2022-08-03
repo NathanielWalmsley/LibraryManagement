@@ -80,7 +80,8 @@ class LibraryManager(object):
         result = self._execute(query, parameters=(branch_name, branch_address))
         return result == [] # The result of fetchall() if insert succeeds
 
-    def _execute_query_with_conditions(self, query, conditions, kwargs):
+    def _execute_query_with_conditions(self, table, conditions, kwargs):
+        query = f'SELECT * FROM {table}'
         parameters = []
 
         if len(kwargs) > 0:
@@ -94,7 +95,6 @@ class LibraryManager(object):
         return self._execute(query, parameters)
 
     def get_books_by_title(self, **kwargs):
-        query = """SELECT book_Title FROM tbl_book"""
         conditions = {
             'title': '\n\tbook_Title = ?',
             'author': '\n\tbook_BookID IN ' +
@@ -104,28 +104,27 @@ class LibraryManager(object):
             'publisher': '\n\tbook_PublisherName = ?',
             'borrower_id': '\n\tbook_BookID IN ' +
                 '(SELECT book_loans_BookID FROM tbl_book_loans ' +
-                    'WHERE book_loans_CardNo IN (' +
-                        'SELECT borrower_CardNo ' +
-                            'FROM tbl_borrower ' +
-                            'WHERE borrower_CardNo = ?))',
+                    'WHERE book_loans_CardNo IN ' +
+                        '(SELECT borrower_CardNo FROM tbl_borrower WHERE borrower_CardNo = ?))',
         }
-        return self._execute_query_with_conditions(query, conditions, kwargs)
+        return self._execute_query_with_conditions('tbl_Book', conditions, kwargs)
 
     def get_publisher_information(self, **kwargs):
-        query = """SELECT * FROM tbl_publisher"""
         conditions = {
             'name': '\n\tpublisher_PublisherName = ?',
             'address': '\n\tpublisher_PublisherAddress = ?',
             'phone': '\n\tpublisher_PublisherPhone = ?'
         }
-        return self._execute_query_with_conditions(query, conditions, kwargs)
+        return self._execute_query_with_conditions('tbl_Publisher', conditions, kwargs)
         
     def get_borrower_information(self, **kwargs):
-        query = """SELECT * FROM tbl_borrower"""
         conditions = {
             'name': '\n\tborrower_BorrowerName = ?',
             'address': '\n\tborrower_BorrowerAddress = ?',
             'phone': '\n\tborrower_BorrowerPhone = ?',
-            'book': '\n\t'
+            'book': '\n\tborrower_CardNo IN ' +
+                '(SELECT book_loans_CardNo FROM tbl_book_loans ' +
+                    'WHERE book_loans_BookID IN ' +
+                        '(SELECT book_BookID FROM tbl_book WHERE book_Title = ?))'
         }
-        return self._execute_query_with_conditions(query, conditions, kwargs)
+        return self._execute_query_with_conditions('tbl_Borrower', conditions, kwargs)
