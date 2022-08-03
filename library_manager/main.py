@@ -149,19 +149,19 @@ class LibraryManager(object):
             INSERT INTO tbl_book(book_Title, book_PublisherName)
             VALUES (?, ?)
             ON CONFLICT (book_Title, book_PublisherName) DO NOTHING;
-        """ # FIXME:  ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint
+        """
         cursor = self.connection.cursor()
         cursor.execute(insert_book, [title, publisher])
         book_id = cursor.lastrowid
         cursor.close()
-#        book_id = self._execute(insert_book, [title, publisher])[0]
         get_branch_id = """
             SELECT library_branch_BranchID FROM tbl_library_branch WHERE library_branch_BranchName = ?;
         """
-        branch_id = self._execute(get_branch_id, [branch])[0]
+        branch_id = self._execute(get_branch_id, [branch])[0][0]
         update_stock = """
-            UPSERT INTO tbl_book_copies(book_copies_BookID, book_copies_BranchID, book_copies_No_Of_Copies)
+            INSERT INTO tbl_book_copies(book_copies_BookID, book_copies_BranchID, book_copies_No_Of_Copies)
             VALUES (?, ?, ?)
-            OUTPUT tbl_book_copies.cook_copies_No_Of_Copies;
+            ON CONFLICT (book_copies_BookID, book_copies_BranchID) 
+            DO UPDATE SET book_copies_No_Of_Copies = book_copies_No_Of_Copies + ?;
         """
-        no_copies = self._execute(update_stock, [book_id, branch_id, stock])
+        self._execute(update_stock, [book_id, branch_id, stock, stock])

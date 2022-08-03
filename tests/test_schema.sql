@@ -25,7 +25,8 @@ CREATE TABLE tbl_book (
     book_PublisherName VARCHAR(100) NOT NULL,
     FOREIGN KEY (book_PublisherName)
         REFERENCES tbl_publisher(publisher_PublisherName) 
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE (book_Title, book_PublisherName)
 );
 
 CREATE TABLE tbl_book_authors (
@@ -47,7 +48,8 @@ CREATE TABLE tbl_book_copies (
         ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (book_copies_BranchID)
         REFERENCES tbl_library_branch(library_branch_BranchID) 
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE (book_copies_BookID, book_copies_BranchID)
 );
 
 CREATE TABLE tbl_book_loans (
