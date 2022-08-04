@@ -114,37 +114,30 @@ def test_get_borrower_in_possession_of_book():
 
 
 def test_insert_book_or_update_stock_updates_stock_only_for_existing_book():
+    title = 'The Name of the Wind'
+    branch = 'Sharpstown'
     result = CATALOGUE.insert_book_or_update_stock(
-        'The Name of the Wind', 
+        title, 
         'DAW Books', 
         'Patrick Rothfuss', 
-        'Sharpstown', 
+        branch, 
         4
     )
-    updated_stock_query = """
-        SELECT book_copies_No_Of_Copies 
-        FROM tbl_book_copies 
-        WHERE book_copies_BranchID = 1 AND book_copies_BookID = 1;
-    """
-    result = CATALOGUE._execute(updated_stock_query)
-    assert result == [(9,)]
+    result = CATALOGUE.get_stock_information(title, branch)
+    assert result == [(title, branch, 9)]
 
 def test_insert_book_or_update_stock_add_new_inventory():
+    title = 'Paul Takes the Form of a Mortal Girl'
+    branch = 'Ann Arbor'
     result = CATALOGUE.insert_book_or_update_stock(
-        'Paul Takes the Form of a Mortal Girl', 
+        title, 
         'Rescue Press', 
         'Andrea Lawlor', 
-        'Ann Arbor', 
+        branch, 
         25
     )
-    # Why is the Book ID 22? There's no entry 21
-    new_stock_query = """
-        SELECT book_copies_No_Of_Copies 
-        FROM tbl_book_copies 
-        WHERE book_copies_BranchID = 4 AND book_copies_BookID = 22;
-    """
-    result = CATALOGUE._execute(new_stock_query)
-    assert result == [(25,)]
+    result = CATALOGUE.get_stock_information(title, branch)
+    assert result == [(title, branch, 25)]
 
     new_author_query = """
         SELECT * FROM tbl_book_authors 

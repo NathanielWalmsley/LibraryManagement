@@ -89,7 +89,7 @@ class LibraryManager(object):
                     'WHERE book_loans_CardNo IN ' +
                         '(SELECT borrower_CardNo FROM tbl_borrower WHERE borrower_CardNo = ?))',
         }
-        return self._execute_query_with_conditions('tbl_Book', conditions, kwargs)
+        return self._execute_query_with_conditions('tbl_book', conditions, kwargs)
 
     def get_publisher_information(self, **kwargs):
         conditions = {
@@ -97,7 +97,7 @@ class LibraryManager(object):
             'address': '\n\tpublisher_PublisherAddress = ?',
             'phone': '\n\tpublisher_PublisherPhone = ?'
         }
-        return self._execute_query_with_conditions('tbl_Publisher', conditions, kwargs)
+        return self._execute_query_with_conditions('tbl_publisher', conditions, kwargs)
         
     def get_borrower_information(self, **kwargs):
         conditions = {
@@ -109,7 +109,24 @@ class LibraryManager(object):
                     'WHERE book_loans_BookID IN ' +
                         '(SELECT book_BookID FROM tbl_book WHERE book_Title = ?))'
         }
-        return self._execute_query_with_conditions('tbl_Borrower', conditions, kwargs)
+        return self._execute_query_with_conditions('tbl_borrower', conditions, kwargs)
+
+    def get_stock_information(self, bookTitle, branchName):
+        query = """
+            SELECT 
+                tbl_book.book_Title, 
+                tbl_library_branch.library_branch_BranchName,
+                tbl_book_copies.book_copies_No_Of_Copies
+            FROM 
+                tbl_book_copies
+            INNER JOIN tbl_book 
+            ON tbl_book.book_BookID = tbl_book_copies.book_copies_BookID
+            INNER JOIN tbl_library_branch 
+            ON tbl_library_branch.library_branch_BranchID = tbl_book_copies.book_copies_BranchID
+            WHERE tbl_book.book_Title = ? 
+            AND tbl_library_branch.library_branch_BranchName = ?
+        """
+        return self._execute(query, [bookTitle, branchName])
 
 # ---------------------------------INSERT/UPDATE QUERIES--------------------------------#
 
