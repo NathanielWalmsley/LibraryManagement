@@ -110,6 +110,17 @@ def test_get_borrower_in_possession_of_book():
     ]
 
 
+def test_get_stock_information_for_multiple_libraries():
+    title = 'Dune'
+    result = CATALOGUE.get_stock_information(bookTitle=title)
+    assert result == [
+        (title, 'Sharpstown', 4),
+        (title, 'Central', 4),
+        (title, 'Saline', 5),
+        (title, 'Ann Arbor', 3)
+    ]
+
+
 # ------------------------------- INSERT/UPDATE --------------------------------------- #
 
 

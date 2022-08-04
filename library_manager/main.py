@@ -111,7 +111,7 @@ class LibraryManager(object):
         }
         return self._execute_query_with_conditions('tbl_borrower', conditions, kwargs)
 
-    def get_stock_information(self, bookTitle, branchName):
+    def get_stock_information(self, bookTitle, branchName=None):
         query = """
             SELECT 
                 tbl_book.book_Title, 
@@ -124,9 +124,11 @@ class LibraryManager(object):
             INNER JOIN tbl_library_branch 
             ON tbl_library_branch.library_branch_BranchID = tbl_book_copies.book_copies_BranchID
             WHERE tbl_book.book_Title = ? 
-            AND tbl_library_branch.library_branch_BranchName = ?
         """
-        return self._execute(query, [bookTitle, branchName])
+        if branchName:
+            query += "\nAND tbl_library_branch.library_branch_BranchName = ?"
+            return self._execute(query, [bookTitle, branchName])
+        return self._execute(query, [bookTitle])
 
 # ---------------------------------INSERT/UPDATE QUERIES--------------------------------#
 
