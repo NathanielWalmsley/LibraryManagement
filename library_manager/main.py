@@ -34,6 +34,7 @@ class LibraryManager(object):
                 f'with parameters: {parameters}\n'
                 f'Error code is: {e}'
             )
+            raise
         except Exception as unexpectedException:
             print(
                 f'An unexpected error occurred with code: {unexpectedException}'
@@ -113,17 +114,27 @@ class LibraryManager(object):
 
     def get_stock_information(self, bookTitle, branchName=None):
         query = """
-            SELECT 
-                tbl_book.book_Title, 
+            WITH booksInStock AS (
+                SELECT 
+                book_loans_BookID as bookId,
+                book_loans_BranchID as branchId,
+                count(*) as loaned
+                FROM tbl_book_loans
+                GROUP BY 1, 2
+            )
+            SELECT
+                tbl_book.book_Title,
                 tbl_library_branch.library_branch_BranchName,
-                tbl_book_copies.book_copies_No_Of_Copies
+                book_copies_No_Of_Copies - booksInStock.loaned
             FROM 
                 tbl_book_copies
-            INNER JOIN tbl_book 
-            ON tbl_book.book_BookID = tbl_book_copies.book_copies_BookID
-            INNER JOIN tbl_library_branch 
-            ON tbl_library_branch.library_branch_BranchID = tbl_book_copies.book_copies_BranchID
-            WHERE tbl_book.book_Title = ? 
+            LEFT JOIN booksInStock ON book_copies_BookID = booksInStock.bookId
+            JOIN tbl_book ON book_copies_BookID = tbl_book.book_BookID
+            JOIN tbl_library_branch 
+            ON book_copies_BranchID = tbl_library_branch.library_branch_BranchID
+            WHERE tbl_book.book_Title = ?
+            AND booksInStock.bookId = tbl_book.book_BookID 
+            AND booksInStock.branchId = tbl_library_branch.library_branch_BranchID
         """
         if branchName:
             query += "\nAND tbl_library_branch.library_branch_BranchName = ?"
