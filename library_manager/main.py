@@ -191,11 +191,11 @@ class LibraryManager(object):
         branch_id = self._execute(get_branch_id, [branch])[0][0]
         update_stock = """
             INSERT INTO tbl_book_copies(book_copies_BookID, book_copies_BranchID, book_copies_No_Of_Copies)
-            VALUES (?, ?, ?)
+            VALUES (?1, ?2, ?3)
             ON CONFLICT (book_copies_BookID, book_copies_BranchID) 
-            DO UPDATE SET book_copies_No_Of_Copies = book_copies_No_Of_Copies + ?;
+            DO UPDATE SET book_copies_No_Of_Copies = book_copies_No_Of_Copies + ?3;
         """
-        self._execute(update_stock, [book_id, branch_id, stock, stock])
+        self._execute(update_stock, [book_id, branch_id, stock])
 
         # Add the book's author - do nothing if the author already
         # already exists for that book
