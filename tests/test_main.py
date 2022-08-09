@@ -48,7 +48,7 @@ def test_insert_new_library_does_not_overwrite_existing_entries():
 
 
 def test_get_books_by_title_filter_by_author():
-    result = CATALOGUE.get_books_by_title(author='Patrick Rothfuss')
+    result = CATALOGUE.get_book_information(author='Patrick Rothfuss')
     assert result == [
         (1, 'The Name of the Wind', 'DAW Books'), 
         (7, 'The Wise Mans Fear', 'DAW Books')
@@ -56,9 +56,9 @@ def test_get_books_by_title_filter_by_author():
 
 
 def test_get_books_by_title_filter_by_publisher():
-    result = CATALOGUE.get_books_by_title(publisher='Scholastic')
+    result = CATALOGUE.get_book_information(publisher='Scholastic')
     assert result == [(15, 'Holes', 'Scholastic')]
-    result = CATALOGUE.get_books_by_title(publisher='Bloomsbury')
+    result = CATALOGUE.get_book_information(publisher='Bloomsbury')
     assert result == [
         (8, 'Harry Potter and the Philosophers Stone', 'Bloomsbury'), 
         (16, 'Harry Potter and the Chamber of Secrets', 'Bloomsbury'), 
@@ -67,7 +67,7 @@ def test_get_books_by_title_filter_by_publisher():
 
 
 def test_get_books_taken_out_by_borrower():
-    result = CATALOGUE.get_books_by_title(borrower_id=1)
+    result = CATALOGUE.get_book_information(borrower_id=1)
     assert result == [
         (1, 'The Name of the Wind', 'DAW Books'), 
         (2, 'It', 'Viking'), 
@@ -144,11 +144,8 @@ def test_insert_book_or_update_stock_add_new_inventory():
     )
     result = CATALOGUE.get_stock_information(title, branch)
     assert result == [(title, branch, 25, 0)]
+    # Check that we didn't add the book to any other branches by mistake
+    assert CATALOGUE.get_stock_information(title, 'Sharpstown') == []
 
-    new_author_query = """
-        SELECT * FROM tbl_book_authors 
-        WHERE 
-            book_authors_AuthorName = "Andrea Lawlor";
-    """
-    result = CATALOGUE._execute(new_author_query)
-    assert result == [(22, 'Andrea Lawlor', 22)]
+    result = CATALOGUE.get_book_information(author='Andrea Lawlor')
+    assert result == [(22, 'Paul Takes the Form of a Mortal Girl', 'Rescue Press')]

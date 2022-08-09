@@ -77,7 +77,7 @@ class LibraryManager(object):
 
         return self._execute(query, parameters)
 
-    def get_books_by_title(self, **kwargs):
+    def get_book_information(self, **kwargs):
         conditions = {
             'title': '\n\tbook_Title = ?',
             'author': '\n\tbook_BookID IN ' +
@@ -113,6 +113,13 @@ class LibraryManager(object):
         return self._execute_query_with_conditions('tbl_borrower', conditions, kwargs)
 
     def get_stock_information(self, bookTitle, branchName=None):
+        '''
+            Retrieve information about a single book in one or more libraries.
+            If there are no copies of a book in a library, an empty row will be returned.
+            Returns:
+            List of tuples represents the rows being returned in the format:
+            Title; Branch; Total copies in the branch; Copies on loan
+        '''
         query = f"""
             SELECT
                 bk.book_Title, 
