@@ -14,8 +14,8 @@ autom4te.cache/
 *.tar.gz
 tarballs/
 test-results/
-libraryCatalogue/.env
-libraryCatalogue/db.sqlite3
+djangoProject/.env
+djangoProject/db.sqlite3
 
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
