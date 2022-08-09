@@ -101,26 +101,18 @@ def test_get_borrower_in_possession_of_book():
 def test_get_stock_information_for_multiple_libraries():
     title = 'Dune'
     result = CATALOGUE.get_stock_information(bookTitle=title)
-    print(CATALOGUE._execute("""
-        SELECT 
-                book_loans_BookID as bookId,
-                book_loans_BranchID as branchId,
-                count(*) as loaned
-                FROM tbl_book_loans
-                GROUP BY 1, 2
-    """))
     assert result == [
-        (title, 'Sharpstown', 4),
-        (title, 'Central', 5),
-        (title, 'Saline', 4),
-        (title, 'Ann Arbor', 3)
+        (title, 'Sharpstown', 5, 1),
+        (title, 'Central', 5, 0),
+        (title, 'Saline', 5, 1),
+        (title, 'Ann Arbor', 5, 2)
     ]
 
 
 def test_get_stock_information_for_a_library():
     title = 'The Hitchhikers Guide to the Galaxy'
     result = CATALOGUE.get_stock_information(title, branchName='Central')
-    assert result == [(title, 'Central', 4)]
+    assert result == [(title, 'Central', 5, 1)]
 
 
 # ------------------------------- INSERT/UPDATE --------------------------------------- #

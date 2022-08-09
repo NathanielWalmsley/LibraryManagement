@@ -113,31 +113,27 @@ class LibraryManager(object):
         return self._execute_query_with_conditions('tbl_borrower', conditions, kwargs)
 
     def get_stock_information(self, bookTitle, branchName=None):
-        query = """
-            WITH booksInStock AS (
-                SELECT 
-                book_loans_BookID as bookId,
-                book_loans_BranchID as branchId,
-                count(*) as loaned
-                FROM tbl_book_loans
-                GROUP BY 1, 2
-            )
+        query = f"""
             SELECT
-                tbl_book.book_Title,
-                tbl_library_branch.library_branch_BranchName,
-                book_copies_No_Of_Copies - booksInStock.loaned
+                bk.book_Title, 
+                branch.library_branch_BranchName,
+                book_copies_No_Of_Copies,
+                COUNT(bl.book_loans_LoansID)
             FROM 
                 tbl_book_copies
-            LEFT JOIN booksInStock ON book_copies_BookID = booksInStock.bookId
-            JOIN tbl_book ON book_copies_BookID = tbl_book.book_BookID
-            JOIN tbl_library_branch 
-            ON book_copies_BranchID = tbl_library_branch.library_branch_BranchID
-            WHERE tbl_book.book_Title = ?
-            AND booksInStock.bookId = tbl_book.book_BookID 
-            AND booksInStock.branchId = tbl_library_branch.library_branch_BranchID
+            LEFT JOIN tbl_book_loans bl
+                ON book_copies_BookID = bl.book_loans_BookID 
+                AND book_copies_BranchID = book_loans_BranchID
+            JOIN tbl_book bk 
+                ON book_copies_BookID = bk.book_BookID
+            JOIN tbl_library_branch branch
+                ON book_copies_BranchID = branch.library_branch_BranchID
+            WHERE 
+                bk.book_Title = ?
+            {"AND branch.library_branch_BranchName = ?" if branchName else ""}
+            GROUP BY book_copies_BookID, book_copies_BranchID
         """
         if branchName:
-            query += "\nAND tbl_library_branch.library_branch_BranchName = ?"
             return self._execute(query, [bookTitle, branchName])
         return self._execute(query, [bookTitle])
 
