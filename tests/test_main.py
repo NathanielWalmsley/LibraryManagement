@@ -102,6 +102,7 @@ def test_get_stock_information_for_multiple_libraries():
     title = 'Dune'
     result = CATALOGUE.get_stock_information(bookTitle=title)
     assert result == [
+        # title, branch, total stock, copies loaned
         (title, 'Sharpstown', 5, 1),
         (title, 'Central', 5, 0),
         (title, 'Saline', 5, 1),
@@ -118,38 +119,36 @@ def test_get_stock_information_for_a_library():
 # ------------------------------- INSERT/UPDATE --------------------------------------- #
 
 
-# def test_insert_book_or_update_stock_updates_stock_only_for_existing_book():
-#     title = 'The Name of the Wind'
-#     branch = 'Sharpstown'
-#     result = CATALOGUE.insert_book_or_update_stock(
-#         title, 
-#         'DAW Books', 
-#         'Patrick Rothfuss', 
-#         branch, 
-#         4
-#     )
-#     result = CATALOGUE.get_stock_information(title, branch)
-#     assert result == [(title, branch, 9)]
+def test_insert_book_or_update_stock_updates_stock_only_for_existing_book():
+    title = 'The Name of the Wind'
+    branch = 'Sharpstown'
+    result = CATALOGUE.insert_book_or_update_stock(
+        title, 
+        'DAW Books', 
+        'Patrick Rothfuss', 
+        branch, 
+        4
+    )
+    result = CATALOGUE.get_stock_information(title, branch)
+    assert result == [(title, branch, 9, 1)]
 
-# def test_insert_book_or_update_stock_add_new_inventory():
-#     title = 'Paul Takes the Form of a Mortal Girl'
-#     branch = 'Ann Arbor'
-#     result = CATALOGUE.insert_book_or_update_stock(
-#         title, 
-#         'Rescue Press', 
-#         'Andrea Lawlor', 
-#         branch, 
-#         25
-#     )
-#     result = CATALOGUE.get_stock_information(title, branch)
-#     assert result == [(title, branch, 25)]
+def test_insert_book_or_update_stock_add_new_inventory():
+    title = 'Paul Takes the Form of a Mortal Girl'
+    branch = 'Ann Arbor'
+    result = CATALOGUE.insert_book_or_update_stock(
+        title, 
+        'Rescue Press', 
+        'Andrea Lawlor', 
+        branch, 
+        25
+    )
+    result = CATALOGUE.get_stock_information(title, branch)
+    assert result == [(title, branch, 25, 0)]
 
-#     new_author_query = """
-#         SELECT * FROM tbl_book_authors 
-#         WHERE 
-#             book_authors_BookID = 22
-#             AND 
-#             book_authors_AuthorName = "Andrea Lawlor";
-#     """
-#     result = CATALOGUE._execute(new_author_query)
-#     assert result == [(22, 'Andrea Lawlor', 22)]
+    new_author_query = """
+        SELECT * FROM tbl_book_authors 
+        WHERE 
+            book_authors_AuthorName = "Andrea Lawlor";
+    """
+    result = CATALOGUE._execute(new_author_query)
+    assert result == [(22, 'Andrea Lawlor', 22)]
