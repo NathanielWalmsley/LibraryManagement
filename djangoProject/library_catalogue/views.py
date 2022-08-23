@@ -1,13 +1,18 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
+
+from .models import Book
 
 
 def index(request):
-    return HttpResponse("Hello, world.")
+    first_five_books = Book.objects.order_by('title')[:5]
+    context = {'first_five_books': first_five_books}
+    return render(request, 'library_catalogue/index.html', context)
 
 
 def detail(request, title):
-    return HttpResponse(f'Details for the book: {title}')
+    book = get_object_or_404(Book, title=title)
+    return render(request, 'library_catalogue/detail.html', {'book': book})
 
 
 def results(request, title):
