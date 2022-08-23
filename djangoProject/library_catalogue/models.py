@@ -4,12 +4,18 @@ class LibraryBranch(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.name
+
 
 class Borrower(models.Model):
     card_number = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
 
 
 class Book(models.Model):
@@ -20,9 +26,16 @@ class Book(models.Model):
         name='unique_title_publisher_constraint'
     )
 
+    def __str__(self):
+        return self.title
+
 
 class Author(models.Model):
     name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
 
 class BookAuthorLink(models.Model):
     book_id = models.ForeignKey(Book, on_delete=models.CASCADE)
