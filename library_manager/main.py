@@ -47,7 +47,7 @@ class LibraryManager(object):
             catalogue and return them as a dictionary
         """
         query = """
-            SELECT * FROM tbl_library_branch;
+            SELECT * FROM library_branch;
         """
         result_raw = self._execute(query)
         if not result_raw:
@@ -57,8 +57,8 @@ class LibraryManager(object):
         for row in result_raw:
             result_processed.update({
                 row[0]: {
-                    'library_branch_BranchName': row[1],
-                    'library_branch_BranchAddress': row[2]
+                    'name': row[1],
+                    'address': row[2]
                     }
                 })
         return result_processed
@@ -79,38 +79,39 @@ class LibraryManager(object):
 
     def get_book_information(self, **kwargs):
         conditions = {
-            'title': '\n\tbook_Title = ?',
-            'author': '\n\tbook_BookID IN ' +
-                '(SELECT book_authors_BookID ' +
-                    'FROM tbl_book_authors ' +
-                    'WHERE book_authors_AuthorName = ?)',
-            'publisher': '\n\tbook_PublisherName = ?',
-            'borrower_id': '\n\tbook_BookID IN ' +
-                '(SELECT book_loans_BookID FROM tbl_book_loans ' +
-                    'WHERE book_loans_CardNo IN ' +
-                        '(SELECT borrower_CardNo FROM tbl_borrower WHERE borrower_CardNo = ?))',
+            'title': '\n\t title = ?',
+            'author': '\n\t id IN ' +
+                '(SELECT book_id ' +
+                    'FROM book_author_link ' +
+                    'JOIN author ON author.id = author_id '
+                    'WHERE name = ?)',
+            'publisher': '\n\t publisher = ?',
+            'borrower_id': '\n\t id IN ' +
+                '(SELECT book_id FROM loan ' +
+                    'WHERE card_number IN ' +
+                        '(SELECT card_number FROM borrower WHERE card_number = ?))',
         }
-        return self._execute_query_with_conditions('tbl_book', conditions, kwargs)
+        return self._execute_query_with_conditions('book', conditions, kwargs)
 
-    def get_publisher_information(self, **kwargs):
-        conditions = {
-            'name': '\n\tpublisher_PublisherName = ?',
-            'address': '\n\tpublisher_PublisherAddress = ?',
-            'phone': '\n\tpublisher_PublisherPhone = ?'
-        }
-        return self._execute_query_with_conditions('tbl_publisher', conditions, kwargs)
+    # def get_publisher_information(self, **kwargs):
+    #     conditions = {
+    #         'name': '\n\tpublisher_PublisherName = ?',
+    #         'address': '\n\tpublisher_PublisherAddress = ?',
+    #         'phone': '\n\tpublisher_PublisherPhone = ?'
+    #     }
+    #     return self._execute_query_with_conditions('tbl_publisher', conditions, kwargs)
         
     def get_borrower_information(self, **kwargs):
         conditions = {
-            'name': '\n\tborrower_BorrowerName = ?',
-            'address': '\n\tborrower_BorrowerAddress = ?',
-            'phone': '\n\tborrower_BorrowerPhone = ?',
-            'book': '\n\tborrower_CardNo IN ' +
-                '(SELECT book_loans_CardNo FROM tbl_book_loans ' +
-                    'WHERE book_loans_BookID IN ' +
-                        '(SELECT book_BookID FROM tbl_book WHERE book_Title = ?))'
+            'name': '\n\tname = ?',
+            'address': '\n\taddress = ?',
+            'phone': '\n\tphone = ?',
+            'book': '\n\tcard_number IN ' +
+                '(SELECT card_number FROM loan ' +
+                    'WHERE book_id IN ' +
+                        '(SELECT id FROM book WHERE title = ?))'
         }
-        return self._execute_query_with_conditions('tbl_borrower', conditions, kwargs)
+        return self._execute_query_with_conditions('borrower', conditions, kwargs)
 
     def get_stock_information(self, bookTitle, branchName=None):
         '''
@@ -122,23 +123,23 @@ class LibraryManager(object):
         '''
         query = f"""
             SELECT
-                bk.book_Title, 
-                branch.library_branch_BranchName,
-                book_copies_No_Of_Copies,
-                COUNT(bl.book_loans_LoansID)
+                book.title, 
+                library_branch.name,
+                stock,
+                COUNT(loan.id)
             FROM 
-                tbl_book_copies
-            LEFT JOIN tbl_book_loans bl
-                ON book_copies_BookID = bl.book_loans_BookID 
-                AND book_copies_BranchID = book_loans_BranchID
-            JOIN tbl_book bk 
-                ON book_copies_BookID = bk.book_BookID
-            JOIN tbl_library_branch branch
-                ON book_copies_BranchID = branch.library_branch_BranchID
+                inventory
+            LEFT JOIN loan
+                ON inventory.book_id = loan.book_id 
+                AND inventory.branch_id = loan.branch_id
+            JOIN book
+                ON inventory.book_id = book.id
+            JOIN library_branch
+                ON inventory.branch_id = library_branch.id
             WHERE 
-                bk.book_Title = ?
-            {"AND branch.library_branch_BranchName = ?" if branchName else ""}
-            GROUP BY book_copies_BookID, book_copies_BranchID
+                book.title = ?
+            {"AND library_branch.name = ?" if branchName else ""}
+            GROUP BY inventory.book_id, inventory.branch_id
         """
         if branchName:
             return self._execute(query, [bookTitle, branchName])
@@ -157,7 +158,7 @@ class LibraryManager(object):
         '''
         query = """
             INSERT INTO 
-                tbl_library_branch (library_branch_BranchName, library_branch_BranchAddress)
+                library_branch (name, address)
             VALUES
                 (?, ?);
         """
@@ -181,35 +182,41 @@ class LibraryManager(object):
         # Create the entry in tbl_book - do nothing if the book
         # already exists
         insert_book = """
-            INSERT INTO tbl_book(book_Title, book_PublisherName)
-            VALUES (?, ?)
-            ON CONFLICT (book_Title, book_PublisherName) DO NOTHING;
+            INSERT INTO book (title, publisher) VALUES (?, ?)
+            ON CONFLICT (title, publisher) DO NOTHING
         """
         self._execute(insert_book, [title, publisher])
         get_book_id = """
-            SELECT book_BookID FROM tbl_book WHERE book_Title = ? AND book_PublisherName = ?
+            SELECT id FROM book WHERE title = ? AND publisher = ?
         """
         book_id = self._execute(get_book_id, [title, publisher])[0][0]
 
         # Add or update the stock at the branch
         get_branch_id = """
-            SELECT library_branch_BranchID FROM tbl_library_branch WHERE library_branch_BranchName = ?;
+            SELECT id FROM library_branch WHERE name = ?;
         """
         branch_id = self._execute(get_branch_id, [branch])[0][0]
         update_stock = """
-            INSERT INTO tbl_book_copies(book_copies_BookID, book_copies_BranchID, book_copies_No_Of_Copies)
+            INSERT INTO inventory (book_id, branch_id, stock)
             VALUES (?1, ?2, ?3)
-            ON CONFLICT (book_copies_BookID, book_copies_BranchID) 
-            DO UPDATE SET book_copies_No_Of_Copies = book_copies_No_Of_Copies + ?3;
+            ON CONFLICT (book_id, branch_id) 
+            DO UPDATE SET stock = stock + ?3;
         """
         self._execute(update_stock, [book_id, branch_id, stock])
 
         # Add the book's author - do nothing if the author already
         # already exists for that book
         add_author = """
-            INSERT INTO tbl_book_authors (book_authors_BookID, book_authors_AuthorName)
-            VALUES (?, ?)
-            ON CONFLICT (book_authors_BookID, book_authors_AuthorName)
-            DO NOTHING;
+            INSERT INTO author (name) VALUES (?) ON CONFLICT (name) DO NOTHING
         """
-        self._execute(add_author, [book_id, author])
+        self._execute(add_author, [author])
+        get_author_id = """
+            SELECT id FROM author WHERE name = ?
+        """
+        author_id = self._execute(get_author_id, [author])[0][0]
+
+        add_link = """
+            INSERT INTO book_author_link (book_id, author_id) VALUES (?, ?) 
+            ON CONFLICT (book_id, author_id) DO NOTHING
+        """
+        self._execute(add_link, [book_id, author_id])
