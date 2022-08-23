@@ -11,12 +11,13 @@ stock, while also allowing librarians to keep track of their loans
 and users.  
 
 The first iteration of this project includes only the Python module  
-and a testing database (accessed through the `tests/test_schema.sql`  
+and a testing database (accessed through the `tests/schema.sql`  
 path). The diagram below shows the structure of the database in this  
 iteration:  
-![library_manager_schema](https://user-images.githubusercontent.com/108919919/185788488-149500b8-6b84-48c8-b06f-cbf6670b4c51.png)
+![library_manager_new_schema](https://user-images.githubusercontent.com/108919919/186135927-eb1b76f5-1cd6-4026-928c-f214fa14df21.png)
 
-Two important tables in this diagram are `book` and `loans`, which  
+
+Two important tables in this diagram are `book` and `loan`, which  
 together connect to each other table in the database. The former  
 keeps track of all the individual titles available at all  
 libraries, making no distinction about stock or availability. These  
@@ -25,13 +26,19 @@ a query available in the program that returns the total number
 of copies at a branch, minus the number of copies on loan from  
 that branch.  
 
-The second table, `loans` handles the borrowing data for all  
+The second table, `loan` handles the borrowing data for all  
 libraries in the cluster - dates borrowed and due, which books,  
 by whom, and from which branch. This data is represented by  
 foreign keys from tables dealing with each of these specific  
 fields in more detail, as shown in the diagram.  
 
-### Extensibility
+### Updates
+- 23/08/22
+  The `sql` branch has been merged and a new schema has been  
+  created to have a more intuitive design. The `publisher` table  
+  has been removed due to lack of use and low potential utility.  
+  The `author` and `book` table have been linked by a linking table  
+  to reduce redundancy in both.  
 - 21/08/22  
   There are currently two branches under construction to provide  
   revisions for this system. Firstly, the `sql` branch looks to  
