@@ -1,7 +1,7 @@
 <h1>Search Results</h1>
 
 <ul>
-    {% for x in first_five_books %}
+    {% for book in object_list %}
     <li>
         {{ book.title }}, {{ book.publisher }}
     </li>
