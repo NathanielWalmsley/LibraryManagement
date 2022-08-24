@@ -10,10 +10,10 @@ def index(request):
     return render(request, 'library_catalogue/index.html', context)
 
 
-def detail(request, title):
-    book = get_object_or_404(Book, title=title)
+def detail(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
     return render(request, 'library_catalogue/detail.html', {'book': book})
 
 
-def results(request, title):
-    return HttpResponse(f'Results for book search by title: {title}')
+def results(request, book_id):
+    return HttpResponse(f'Results for book search by title: {book_id}')

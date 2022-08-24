@@ -32,14 +32,10 @@ class Book(models.Model):
 
 class Author(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    books = models.ManyToManyField(Book)
 
     def __str__(self):
         return self.name
-
-
-class BookAuthorLink(models.Model):
-    book_id = models.ForeignKey(Book, on_delete=models.CASCADE)
-    author_id = models.ForeignKey(Author, on_delete=models.CASCADE)
 
 
 class Inventory(models.Model):
