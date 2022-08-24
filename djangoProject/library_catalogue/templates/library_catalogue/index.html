@@ -2,7 +2,7 @@
 {% if first_five_books %}
     <ul>
     {% for book in first_five_books %}
-        <li><a href="/catalogue/{{ book.id }}/">{{ book.title }}</a></li>
+        <li><a href="{% url 'catalogue:detail' book.id %}">{{ book.title }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
