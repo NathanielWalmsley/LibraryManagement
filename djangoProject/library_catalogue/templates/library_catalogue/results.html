@@ -1,0 +1,9 @@
+<h1>Search Results</h1>
+
+<ul>
+    {% for x in first_five_books %}
+    <li>
+        {{ book.title }}, {{ book.publisher }}
+    </li>
+    {% endfor %}
+</ul>
