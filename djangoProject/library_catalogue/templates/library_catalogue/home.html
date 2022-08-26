@@ -1,3 +1,9 @@
+{% extends 'library_catalogue/header.html' %}
+
+{% block content %}
 <form action={% url 'catalogue:results' %} method="get">
     {{ form }}
+    <input type="submit" value="Search" />
 </form>
+
+{% endblock %}
