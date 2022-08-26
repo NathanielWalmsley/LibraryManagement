@@ -36,9 +36,9 @@ def detail(request, book_id):
 class SearchResultsView(ListView):
     model = Book
     template_name = 'library_catalogue/results.html'
-
+    
     def get_queryset(self):
-        query = self.request.GET.get('searchQuery')
+        query = self.request.GET.get('search_query')
         return Book.objects.filter(
-            Q(title__icontains=query)
+            Q(title__icontains=query) | Q(author__name__icontains=query)
         )
