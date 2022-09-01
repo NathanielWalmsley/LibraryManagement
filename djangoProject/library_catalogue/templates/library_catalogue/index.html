@@ -1,9 +1,0 @@
-{% if first_five_books %}
-    <ul>
-    {% for book in first_five_books %}
-        <li><a href="{% url 'catalogue:detail' book.id %}">{{ book.title }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No books are available.</p>
-{% endif %}

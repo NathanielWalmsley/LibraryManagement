@@ -1,9 +1,25 @@
-<h1>Search Results</h1>
+{% extends 'library_catalogue/header.html' %}
 
-<ul>
-    {% for book in object_list %}
-    <li>
-        {{ book.title }}, {{ book.publisher }}
-    </li>
-    {% endfor %}
-</ul>
+{% block content %}
+<h1>Search Results</h1>
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Publisher</th>
+            <th scope="col">Rating</th>
+            <th scope="col">In Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in object_list %}
+        <tr>
+            <td>{{ book.title }}</td>
+            <td>{{ book.publisher }}</td>
+            <td>5/5</td>
+            <td>No</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
