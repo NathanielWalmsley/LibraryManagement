@@ -12,6 +12,7 @@
                 <th scope="col">Publisher</th>
                 <th scope="col">Rating</th>
                 <th scope="col">In Stock</th>
+                <th scope="col">Reserve this title</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,7 @@
                 <td>{{ book.publisher }}</td>
                 <td>5/5</td>
                 <td>No</td>
+                <td><input class="reserve_button" type="button" value="Reserve"></td>
             </tr>
             {% endfor %}
         </tbody>
