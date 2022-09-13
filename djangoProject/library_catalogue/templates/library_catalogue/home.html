@@ -3,6 +3,7 @@
 {% block content %}
 {% load static %}
 <img src="{% static 'catalogue:library_logo' %}" alt="Logo">
+<h1 class="welcome">Welcome to the library</h1>
 <form action={% url 'catalogue:results' %} method="get">
     {{ form }}
     <input type="submit" value="Search" />
