@@ -3,14 +3,31 @@
 {% block content %}
 {% load static %}
 <div id="cover_third">
+    <!-- Display cover image and rating in left-hand third of the screen -->
     <figure id="cover_image">
-        <!-- Display cover image and rating in left-hand third of the screen -->
         <img src="{{ book.cover_image }}" alt="Cover Image">
     </figure>
+    <figcaption>
+        Rating: 5/5
+    </figcaption>
 </div>
 <div id="book_info">
     <h1>{{ book.title }}</h1>
     <h4 id="authors">{% for author in book.author_set.all %}{{ author.name }} {% endfor %}</h4>
+    <section>
+        <article>
+            {{ book.synopsis }}
+        </article>
+    </section>
+</div>
+<div id="availability">
+    <h2>Availability</h2>
+    <ul>
+        <li><input type="checkbox" name="branch" value="sharpstown">Sharpstown</li>
+        <li><input type="checkbox" name="branch" value="central">Central</li>
+        <li><input type="checkbox" name="branch" value="saline">Saline</li>
+        <li><input type="checkbox" name="branch" value="ann_arbor">Ann Arbor</li>
+    </ul>
 </div>
 
 {% endblock %}
