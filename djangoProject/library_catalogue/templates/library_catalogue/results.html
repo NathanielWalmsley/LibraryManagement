@@ -22,7 +22,7 @@
                 <td>{{ book.publisher }}</td>
                 <td>5/5</td>
                 <td>No</td>
-                <td><input class="reserve_button" type="button" value="Reserve"></td>
+                <td><button class="reserve_button" action={% url 'catalogue:detail' %} method="get">Reserve</button></td>
             </tr>
             {% endfor %}
         </tbody>
